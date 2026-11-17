@@ -19,21 +19,26 @@ export interface BlogPost {
 }
 
 export async function getAllPosts(): Promise<BlogPost[]> {
-  // Fetch in smaller batches to avoid timeout
-  const { data, error } = await supabase
-    .from('domainblog_posts')
-    .select('id,title,slug,excerpt,created_at,updated_at,content')
-    .eq('domain_id', domainId)
-    .eq('status', 'published')
-    .order('created_at', { ascending: false })
-    .limit(100); // Limit to avoid timeout on large datasets
+  try {
+    // Fetch in smaller batches to avoid timeout
+    const { data, error } = await supabase
+      .from('domainblog_posts')
+      .select('id,title,slug,excerpt,created_at,updated_at,content')
+      .eq('domain_id', domainId)
+      .eq('status', 'published')
+      .order('created_at', { ascending: false })
+      .limit(100); // Limit to avoid timeout on large datasets
 
-  if (error) {
-    console.error('Error fetching posts:', error);
+    if (error) {
+      console.error('Error fetching posts:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (err) {
+    console.error('Exception fetching posts:', err);
     return [];
   }
-
-  return data || [];
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
