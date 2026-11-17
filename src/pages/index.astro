@@ -1,16 +1,40 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getAllPosts } from '../lib/supabase';
+
+const posts = await getAllPosts();
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="Лас-Вегас - Новости и статьи">
+  <div class="space-y-8">
+    <h1 class="text-4xl font-bold text-gray-900 mb-8">Последние статьи</h1>
+    
+    {posts.length === 0 && (
+      <p class="text-gray-600">Статьи не найдены</p>
+    )}
+    
+    <div class="grid gap-6">
+      {posts.map(post => (
+        <article class="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
+          <a href={`/${post.slug}`} class="group">
+            <h2 class="text-2xl font-bold text-gray-900 group-hover:text-blue-600 mb-3">
+              {post.title}
+            </h2>
+            {post.excerpt && (
+              <p class="text-gray-600 mb-4 line-clamp-3">
+                {post.excerpt}
+              </p>
+            )}
+            <time class="text-sm text-gray-500">
+              {new Date(post.created_at).toLocaleDateString('ru-RU', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </time>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
